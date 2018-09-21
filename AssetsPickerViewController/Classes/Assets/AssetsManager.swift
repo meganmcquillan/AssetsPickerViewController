@@ -50,7 +50,7 @@ open class AssetsManager: NSObject {
     var fetchedAlbumsArray = [[PHAssetCollection]]()
     /// stores sorted array by applying user defined comparator, it's in decreasing order by count by default, and it might same as fetchedAlbumsArray if AssetsPickerConfig has  albumFetchOptions without albumComparator
     var sortedAlbumsArray = [[PHAssetCollection]]()
-    internal(set) open var assetArray = [[PHAsset]]()
+    open var assetArray = [[PHAsset]]()
     
     fileprivate(set) open var defaultAlbum: PHAssetCollection?
     fileprivate(set) open var cameraRollAlbum: PHAssetCollection!
@@ -425,7 +425,17 @@ extension AssetsManager {
                 if albumType != .moment {
                     return filtered.sorted(by: { Int((self.fetchMap[$0.localIdentifier]?.count) ?? 0) > Int((self.fetchMap[$1.localIdentifier]?.count) ?? 0) })
                 } else {
-                    return filtered.sorted(by: { (self.fetchMap[$0.localIdentifier]?[0].creationDate)! < (self.fetchMap[$1.localIdentifier]?[0].creationDate)! })
+                    return filtered.sorted(by: { (item1, item2) in
+                        if let firstDate = self.fetchMap[item1.localIdentifier]?.firstObject?.creationDate {
+                            if let secondDate = self.fetchMap[item2.localIdentifier]?.firstObject?.creationDate {
+                                return firstDate < secondDate
+                            } else {
+                                return true
+                            }
+                        } else {
+                            return false
+                        }
+                    })
                 }
             }
         }
@@ -545,11 +555,6 @@ extension AssetsManager {
             // fetch assets
             self.fetchAlbum(album: album)
             
-            // set default album type
-            if album.assetCollectionSubtype == self.pickerConfig.albumDefaultType {
-                self.defaultAlbum = album
-            }
-            
             // override default album with album title if set
             if let albumDefaultTitle = self.pickerConfig.albumDefaultTitle {
                 if album.assetCollectionType == .moment && albumDefaultTitle == "Moments" {
@@ -557,6 +562,12 @@ extension AssetsManager {
                 } else if album.localizedTitle == albumDefaultTitle {
                     self.defaultAlbum = album
                 }
+            } else {
+                // set default album type
+                if album.assetCollectionSubtype == self.pickerConfig.albumDefaultType {
+                    self.defaultAlbum = album
+                }
+
             }
             
             // save alternative album

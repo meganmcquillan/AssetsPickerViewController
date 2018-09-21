@@ -39,17 +39,24 @@ open class AssetsPhotoLayout: UICollectionViewFlowLayout {
 
 extension AssetsPhotoLayout {
     
+    // TODO: This still isn't functioning well, so landscape mode is currently disabled. Fix.
     open func expectedContentHeight(forViewSize size: CGSize, isPortrait: Bool) -> CGFloat {
-        var rows = AssetsManager.shared.assetArray.count / (isPortrait ? pickerConfig.assetPortraitColumnCount : pickerConfig.assetLandscapeColumnCount)
-        let remainder = AssetsManager.shared.assetArray.count % (isPortrait ? pickerConfig.assetPortraitColumnCount : pickerConfig.assetLandscapeColumnCount)
-        rows += remainder > 0 ? 1 : 0
-        
         let cellSize = isPortrait ? pickerConfig.assetPortraitCellSize(forViewSize: UIScreen.main.portraitContentSize) : pickerConfig.assetLandscapeCellSize(forViewSize: UIScreen.main.landscapeContentSize)
         let lineSpace = isPortrait ? pickerConfig.assetPortraitLineSpace : pickerConfig.assetLandscapeLineSpace
-        let contentHeight = CGFloat(rows) * cellSize.height + (CGFloat(max(rows - 1, 0)) * lineSpace)
-        let bottomHeight = cellSize.height * 2/3 + Device.safeAreaInsets(isPortrait: isPortrait).bottom
         
-        return contentHeight + bottomHeight
+        var rows = 0
+        let numSections = AssetsManager.shared.assetArray.count
+        for section in 0..<numSections {
+            rows += AssetsManager.shared.assetArray[section].count / (isPortrait ? pickerConfig.assetPortraitColumnCount : pickerConfig.assetLandscapeColumnCount)
+            let remainder = AssetsManager.shared.assetArray[section].count % (isPortrait ? pickerConfig.assetPortraitColumnCount : pickerConfig.assetLandscapeColumnCount)
+            rows += remainder > 0 ? 1 : 0
+        }
+        let contentHeight = CGFloat(rows) * cellSize.height + (CGFloat(max(rows - 1, 0)) * lineSpace)
+        
+        let numHeaders = numSections == 1 ? 1 : numSections + 1
+        let sectionDividersHeight = CGFloat(numHeaders) * (cellSize.height * 2/3)
+        
+        return contentHeight + sectionDividersHeight
     }
     
     private func offsetRatio(collectionView: UICollectionView, offset: CGPoint, contentSize: CGSize, isPortrait: Bool) -> CGFloat {

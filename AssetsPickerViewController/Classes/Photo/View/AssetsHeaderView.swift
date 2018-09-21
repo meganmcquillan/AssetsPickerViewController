@@ -11,6 +11,7 @@ open class AssetsPhotoHeaderView: UICollectionReusableView {
         label.textAlignment = .left
         label.font = UIFont.systemFont(forStyle: .body, weight: .semibold)
         label.textColor = .darkText
+        label.lineBreakMode = .byTruncatingTail
         label.text = ""
         return label
     }()
@@ -20,6 +21,7 @@ open class AssetsPhotoHeaderView: UICollectionReusableView {
         label.textAlignment = .left
         label.font = UIFont.systemFont(forStyle: .body)
         label.textColor = .gray
+        label.lineBreakMode = .byTruncatingTail
         label.text = ""
         return label
     }()
@@ -50,17 +52,11 @@ open class AssetsPhotoHeaderView: UICollectionReusableView {
     open override func updateConstraints() {
         subView.autoPinEdgesToSuperviewEdges()
         locationLabel.autoPinEdge(toSuperviewMargin: .left)
+        locationLabel.autoPinEdge(toSuperviewMargin: .right)
         locationLabel.autoPinEdge(toSuperviewMargin: .top)
         subLocationLabel.autoPinEdge(toSuperviewMargin: .left)
+        subLocationLabel.autoPinEdge(toSuperviewMargin: .right)
         subLocationLabel.autoPinEdge(.top, to: .bottom, of: locationLabel)
-
-//        let view = UIView()
-//        subView.insertSubview(view, at: 0)
-//        view.autoPinEdgesToSuperviewMargins()
-//        view.insertSubview(subLocationLabel, at: 0)
-//        if let subLabel = subLocationLabel.text, !subLabel.isEmpty {
-//            view.insertSubview(subLocationLabel, at: 1)
-//        }
         super.updateConstraints()
     }
     
